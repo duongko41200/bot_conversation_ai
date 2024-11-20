@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
+const { spawn } = require("child_process");
 
 let mainWindow;
 
@@ -30,30 +31,37 @@ app.on("window-all-closed", () => {
 });
 
 // Lắng nghe từ ReactJS và gọi script Python
-const { spawn } = require("child_process");
-
 ipcMain.handle("start-recognition", async () => {
-  // Đảm bảo rằng Python và file script được gọi đúng
-  const pythonProcess = spawn("python", ["speech_to_text.py"]);
+  try {
+    // Đảm bảo rằng Python và file script được gọi đúng
+    const pythonProcess = spawn("py", ["./speech_to_text.py"]);  // Chỉnh lại đây nếu bạn dùng python3 hoặc python trên môi trường khác
 
-  return new Promise((resolve, reject) => {
-    let data = "";
+    return new Promise((resolve, reject) => {
+      let data = "";
 
-    pythonProcess.stdout.on("data", (chunk) => {
-      data += chunk;
+      pythonProcess.stdout.on("data", (chunk) => {
+        data += chunk;  // Gom tất cả dữ liệu trả về vào biến data
+      });
+
+      pythonProcess.stderr.on("data", (err) => {
+        reject(`Lỗi từ Python: ${err.toString()}`);
+      });
+
+      pythonProcess.on("close", (code) => {
+        if (code === 0) {
+          try {
+            const result = JSON.parse(data);  // Chắc chắn rằng dữ liệu trả về là JSON
+            resolve(result);
+          } catch (e) {
+            reject("Không thể phân tích dữ liệu JSON từ script Python");
+          }
+        } else {
+          reject(`Script Python kết thúc với mã lỗi ${code}`);
+        }
+      });
     });
-
-    pythonProcess.stderr.on("data", (err) => {
-      reject(`Lỗi: ${err.toString()}`);
-    });
-
-    pythonProcess.on("close", (code) => {
-      if (code === 0) {
-        resolve(JSON.parse(data)); // Giả sử kết quả trả về là JSON
-      } else {
-        reject(`Script Python kết thúc với mã lỗi ${code}`);
-      }
-    });
-  });
+  } catch (err) {
+    console.error("Lỗi khi gọi script Python: ", err);
+    throw new Error("Không thể thực thi script Python");
+  }
 });
-
