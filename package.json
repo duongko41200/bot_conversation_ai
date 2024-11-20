@@ -1,0 +1,12 @@
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "electron": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^23.0.0"
+  }
+}
