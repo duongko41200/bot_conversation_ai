@@ -14,7 +14,7 @@ def recognize_speech():
 
     while True:
         # Sử dụng microphone làm nguồn âm thanh
-        with sr.Microphone() as source:
+        with sr.Microphone(device_index=17) as source:
             print("Xin mời nói...")
             # recognizer.adjust_for_ambient_noise(source)  # Điều chỉnh cho tiếng ồn xung quanh
 
