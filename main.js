@@ -44,7 +44,7 @@ ipcMain.handle("start-recognition", async () => {
       });
 
       pythonProcess.stderr.on("data", (err) => {
-        reject(`Lỗi từ Python: ${err.toString()}`);
+        reject(`error Python: ${err.toString()}`);
       });
 
       pythonProcess.on("close", (code) => {
@@ -56,12 +56,12 @@ ipcMain.handle("start-recognition", async () => {
             reject("Không thể phân tích dữ liệu JSON từ script Python");
           }
         } else {
-          reject(`Script Python kết thúc với mã lỗi ${code}`);
+          reject(`Script Python  ${code}`);
         }
       });
     });
   } catch (err) {
-    console.error("Lỗi khi gọi script Python: ", err);
-    throw new Error("Không thể thực thi script Python");
+    console.error("erroe script Python: ", err);
+    throw new Error("not excute script Python");
   }
 });
